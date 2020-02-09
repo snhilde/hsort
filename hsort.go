@@ -18,6 +18,7 @@ func InsertionInt(list []int) error {
 
 	for i, v := range list {
 		for i > 0 {
+			// Scan down the section of the list that is now sorted.
 			previous := list[i-1]
 			if previous > v {
 				// Shift one to the right.
