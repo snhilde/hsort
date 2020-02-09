@@ -61,7 +61,71 @@ func SelectionInt(list []int) error {
 
 // Sort the list of ints using a merging algorithm.
 func MergeInt(list []int) error {
+	// For this sorting function, we're going to focus on a stack of blocks. A block is a subsection of the total list.
+	// First, we're going to create a block for the entire list. Then we're going to follow this sequence for each sub-block:
+	// - Look at the top block on the stack.
+	//     - If it hasn't been split yet, then make two blocks out of each half and add them to the stack.
+	//     - If it has already been split, then merge its two halves together and throw away the block.
+	type block struct {
+		index  int
+		length int
+		merge  bool
+	}
+
+	length := len(list)
+	if length < 1 {
+		return errors.New("Invalid list size")
+	}
+
+	b := block{0, length, false}
+	s := []block{b}
+	for len(s) > 0 {
+		// Pop the top block.
+		b = s[len(s)-1]
+		s = s[:(len(s)-1)]
+
+		leftIndex := b.index
+		leftLen := b.length / 2
+
+		rightIndex := b.index + leftLen
+		rightLen := b.length - leftLen
+		if b.merge {
+			// Merge the two halves.
+			tmp := make([]int, b.length)
+			for i := 0; i < b.length; i++ {
+				if leftLen == 0 {
+					// We only have values on the right side still.
+					tmp[i] = list[rightIndex]
+					rightIndex++
+				} else if rightLen == 0 {
+					// We only have values on the left side still.
+					tmp[i] = list[leftIndex]
+					leftIndex++
+				} else if list[leftIndex] < list[rightIndex] {
+					tmp[i] = list[leftIndex]
+					leftIndex++
+					leftLen--
+				} else {
+					tmp[i] = list[rightIndex]
+					rightIndex++
+					rightLen--
+				}
+			}
+			copy(list[b.index:], tmp)
+		} else {
+			// We're still on the splitting phase.
+			b.merge = true
+			s = append(s, b)
+			if leftLen > 1 {
+				// Add left-side block to stack.
+				s = append(s, block{leftIndex, leftLen, false})
+			}
+			if rightLen > 1 {
+				// Add right-side block to stack.
+				s = append(s, block{rightIndex, rightLen, false})
+			}
+		}
+	}
 
 	return nil
 }
-
