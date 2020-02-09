@@ -28,14 +28,14 @@ func testSort(t *testing.T, sortFunc func([]int) error, iters int, length int) {
 		// Sort the slice using the provided algorithm.
 		listCopy := make([]int, length)
 		copy(listCopy, list)
-		err := sortFunc(listCopy)
+		err := sortFunc(list)
 		if err != nil {
 			t.Log("Sorting failed:")
 			t.Error(err)
 		}
 
 		// Check that the sorting algorithm was correct.
-		sort.Ints(list)
+		sort.Ints(listCopy)
 		for i, v := range list {
 			if v != listCopy[i] {
 				t.Error("Values at index", i, "differ")
