@@ -1,3 +1,4 @@
+// Package hsort provides a proof-of-concept for multiple sorting algorithms.
 package hsort
 
 import (
