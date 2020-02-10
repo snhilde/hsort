@@ -79,6 +79,9 @@ func MergeInt(list []int) error {
 		return errors.New("Invalid list size")
 	}
 
+	// Create a space to hold our new list while we are merging stacks.
+	tmp := make([]int, length)
+
 	b := block{0, length, false}
 	s := []block{b}
 	for len(s) > 0 {
@@ -93,7 +96,6 @@ func MergeInt(list []int) error {
 		rightLen := b.length - leftLen
 		if b.merge {
 			// Merge the two halves.
-			tmp := make([]int, b.length)
 			for i := 0; i < b.length; i++ {
 				if leftLen == 0 {
 					// We only have values on the right side still.
@@ -113,7 +115,7 @@ func MergeInt(list []int) error {
 					rightLen--
 				}
 			}
-			copy(list[b.index:], tmp)
+			copy(list[b.index:], tmp[:b.length])
 		} else {
 			// We're still on the splitting phase.
 			b.merge = true
