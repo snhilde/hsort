@@ -39,8 +39,8 @@ func testSort(t *testing.T, sortFunc func([]int) error, iters int, length int) {
 		for i, v := range list {
 			if v != listCopy[i] {
 				t.Error("Values at index", i, "differ")
-				t.Log("list:", v)
-				t.Log("listCopy:", listCopy[i])
+				t.Log("should be:", listCopy[i])
+				t.Log("really is:", v)
 			}
 		}
 	}
