@@ -57,3 +57,7 @@ func TestSelectionInt(t *testing.T) {
 func TestMergeInt(t *testing.T) {
 	testSort(t, MergeInt, 100, 10000)
 }
+
+func TestMergeIntOptimized(t *testing.T) {
+	testSort(t, MergeIntOptimized, 100, 10000)
+}
