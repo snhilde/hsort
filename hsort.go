@@ -133,3 +133,72 @@ func MergeInt(list []int) error {
 
 	return nil
 }
+
+// Sort the list of ints using a merging algorithm that is optimized for low memory use.
+func MergeIntOptimized(list []int) error {
+	// While the standard merging algorithm first divides the list to be sorted into iteratively smaller blocks and then
+	// merges back up the tree, this implementation starts at the bottom and merges upward immediately. This reduces
+	// the memory overhead, as there is no tree allocation/construction.
+	// We're going to focus on stacks and blocks here. Stacks are already-sorted sublists, and blocks are two stacks
+	// that are being merged. The algorithm starts with a stack size of 1, meaning at the bottom level of individual
+	// items. It will form blocks by merging two stacks together, working through the entire list. It will then make
+	// stacks out of those blocks and continuing operating in this manner until the stack size consumes the entire list
+	// and everything is sorted.
+	length := len(list)
+	if length < 1 {
+		return errors.New("Invalid list size")
+	}
+
+	// Create a space to hold our new list while we are merging stacks.
+	tmp := make([]int, length)
+
+	// Progressively work from smallest stack size up.
+	for stackSize := 1; stackSize < length; stackSize *= 2 {
+		// A block represents both stacks put together.
+		blockSize := stackSize * 2
+		numBlocks := (length / blockSize) + 1
+
+		// Operate on each individual block.
+		for i := 0; i < numBlocks; i++ {
+			index := blockSize * i
+			// If this is the last block in the row, we have to compensate for potentially not having a full block.
+			if i == numBlocks - 1 {
+				blockSize = length - index
+				if blockSize <= stackSize {
+					// Already sorted
+					break
+				}
+			}
+
+			leftIndex := index
+			leftLen := stackSize
+
+			rightIndex := index + stackSize
+			rightLen := blockSize - stackSize
+
+			// Merge both stacks together.
+			for j := 0; j < blockSize; j++ {
+				if leftLen == 0 {
+					// We only have values on the right side still.
+					copy(tmp[j:], list[rightIndex:rightIndex+rightLen])
+					break
+				} else if rightLen == 0 {
+					// We only have values on the left side still.
+					copy(tmp[j:], list[leftIndex:leftIndex+leftLen])
+					break
+				} else if list[leftIndex] < list[rightIndex] {
+					tmp[j] = list[leftIndex]
+					leftIndex++
+					leftLen--
+				} else {
+					tmp[j] = list[rightIndex]
+					rightIndex++
+					rightLen--
+				}
+			}
+			copy(list[index:], tmp[:blockSize])
+		}
+	}
+
+	return nil
+}
