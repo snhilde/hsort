@@ -202,3 +202,52 @@ func MergeIntOptimized(list []int) error {
 
 	return nil
 }
+
+// Sort the list of ints using a hashing algorithm.
+func HashInt(list []int) error {
+	// We're going to follow this sequence:
+	// 1. Build a hash table and populate it with every item in the list. Because we do not have any prior knowledge of
+	//    value range, our hash function is a simple value mod length. This gives distribution in the array equal to the
+	//    value distribution in the list. We're going to handle collisions with chaining.
+	// 2. As we are populating the table, we are also going to find the lowest and highest values.
+	// 3. Iterate through every value from the lowest to the highest. If the value exists in the table, put it in the
+	//    list at the current index and increment the index.
+	// Note: Due to the low-to-high value iteration and table lookup, this algorithm is only efficient for low value
+	// ranges. The time complexity is linear for input size AND linear for value range.
+	length := len(list)
+	if length < 1 {
+		return errors.New("Invalid list size")
+	}
+
+	// Give the table a 75% fill to decrease the number of collisions and subsequent append operations.
+	length = int(float64(length) * 1.33)
+
+	// Build out our hash table.
+	low := list[0]
+	high := list[0]
+	table := make([][]int, length)
+	for _, v := range list {
+		if v < low {
+			low = v
+		} else if v > high {
+			high = v
+		}
+
+		hash := v % length
+		table[hash] = append(table[hash], v)
+	}
+
+	// Iterate through our value range. If a value exists in the table, then we'll add it back to the list in now-sorted order.
+	index := 0
+	for i := low; i <= high; i++ {
+		hash := i % length
+		for _, v := range table[hash] {
+			if v == i {
+				list[index] = v
+				index++
+			}
+		}
+	}
+
+	return nil
+}
